@@ -88,7 +88,9 @@ function RegisterForm() {
         console.log("API response:", text);
 
         if (!response.ok) {
+            const errorData = text ? JSON.parse(text):{};
             console.error("Registration failed:", text);
+            alert(errorData.error || 'registration failed')
             return;
         }
 
