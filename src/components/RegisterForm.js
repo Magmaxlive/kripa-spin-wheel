@@ -68,23 +68,39 @@ function RegisterForm() {
             terms:false
         },
 
-        onSubmit: async({value}) => {
-            const {data,error} = await supabase
-                .from('participants')
-                .insert({
-                    name:value.name,
-                    phone:value.phone,
-                    email:value.email || null,
-                })
-               
+        onSubmit: async ({ value }) => {
+    try {
+        const response = await fetch("/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name: value.name,
+                phone: value.phone,
+                email: value.email,
+            }),
+        });
 
-                if (error){
-                    console.error(error);
-                    return;
-                }
+        const text = await response.text();
 
-                console.log('participants registered : ',data)
-        },
+        console.log("API status:", response.status);
+        console.log("API response:", text);
+
+        if (!response.ok) {
+            console.error("Registration failed:", text);
+            return;
+        }
+
+        const data = text ? JSON.parse(text) : {};
+
+        console.log("Registration successful:", data);
+
+        window.location.href = "/spin";
+    } catch (error) {
+        console.error("Registration failed:", error);
+    }
+},
     });
 
     const handleFormSubmit = (e) => {
