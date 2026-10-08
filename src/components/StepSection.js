@@ -27,7 +27,7 @@ function StepSection() {
   return (
     <div className='px-8 py-15 bg-white'>
         <div className="flex flex-col gap-12 max-w-7xl mx-auto">
-            <SectionHeading minor='steps' major='how it works'/>
+            <SectionHeading minor='steps' major='how it works' size='text-3xl'/>
             <StepCards items={items} />
             <div className="flex justify-center">
                 <SpinButton text='register & spin' />

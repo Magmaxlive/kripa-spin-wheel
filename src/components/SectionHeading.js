@@ -1,6 +1,6 @@
 import React from 'react'
 
-function SectionHeading({minor,major,paragraph}) {
+function SectionHeading({minor,major,paragraph,size='md:text-5xl text-3xl'}) {
   return (
     <div className='flex flex-col gap-4 justify-center text-center'>
         {minor &&
@@ -8,7 +8,7 @@ function SectionHeading({minor,major,paragraph}) {
         }
 
         {major &&
-            <h1 className='md:text-5xl text-3xl capitalize font-bold text-primary'>{major}</h1>
+            <h1 className={`${size} capitalize font-bold text-primary`}>{major}</h1>
         }
 
         {paragraph &&

@@ -1,5 +1,6 @@
 import SpinnerSection from "@/components/SpinnerSection";
 import StepSection from "@/components/StepSection";
+import TermsSection from "@/components/TermsSection";
 import Image from "next/image";
 
 export default function Home() {
@@ -7,6 +8,7 @@ export default function Home() {
     <>
       <SpinnerSection/>
       <StepSection/>
+      <TermsSection/>
     </>
   );
 }
