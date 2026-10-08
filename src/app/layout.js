@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${poppins.variable} h-full antialiased`}>
+      className={`${poppins.variable} h-full antialiased`} suppressHydrationWarning>
 
       <body>
         <Header/>

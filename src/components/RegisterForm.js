@@ -69,7 +69,21 @@ function RegisterForm() {
         },
 
         onSubmit: async({value}) => {
-            
+            const {data,error} = await supabase
+                .from('participants')
+                .insert({
+                    name:value.name,
+                    phone:value.phone,
+                    email:value.email || null,
+                })
+               
+
+                if (error){
+                    console.error(error);
+                    return;
+                }
+
+                console.log('participants registered : ',data)
         },
     });
 
