@@ -2,6 +2,7 @@
 import React from 'react'
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
+import { supabase } from '@/lib/supabase/client';
 
 const registrationSchema = z.object({
     name:z.string()
@@ -68,7 +69,7 @@ function RegisterForm() {
         },
 
         onSubmit: async({value}) => {
-            console.log(value)
+            
         },
     });
 
