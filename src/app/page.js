@@ -1,3 +1,4 @@
+import CTASection from "@/components/CTASection";
 import SpinnerSection from "@/components/SpinnerSection";
 import StepSection from "@/components/StepSection";
 import TermsSection from "@/components/TermsSection";
@@ -9,6 +10,7 @@ export default function Home() {
       <SpinnerSection/>
       <StepSection/>
       <TermsSection/>
+      <CTASection/>
     </>
   );
 }
