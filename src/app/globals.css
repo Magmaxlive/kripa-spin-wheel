@@ -1,14 +1,20 @@
 @import "tailwindcss";
+@config "../../tailwind.config.js";
+
 
 :root {
   --primary:#004539;
   --neutral:#f8f6f2;
+  --button: #0045391a;
 }
 
 
 @theme inline {
   --color-primary: var(--primary);
   --color-neutral: var(--neutral);
+  --color-button: var(--button);
+  --color-accent:    #d5ad67;
+
 }
 
 
