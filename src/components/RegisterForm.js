@@ -87,18 +87,21 @@ function RegisterForm() {
         console.log("API status:", response.status);
         console.log("API response:", text);
 
+        const data = text ? JSON.parse(text) : {};
+
         if (!response.ok) {
-            const errorData = text ? JSON.parse(text):{};
             console.error("Registration failed:", text);
-            alert(errorData.error || 'registration failed')
+            alert(data.error || 'registration failed')
             return;
         }
 
-        const data = text ? JSON.parse(text) : {};
+        
+        form.reset();
 
         console.log("Registration successful:", data);
 
-        window.location.href = "/spin";
+        window.history.replaceState(null, "", "/spin");
+        window.location.reload();
     } catch (error) {
         console.error("Registration failed:", error);
     }

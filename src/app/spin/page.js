@@ -37,6 +37,8 @@ function page() {
 
         verifyParticipant();
 
+        
+
     },[router]);
 
     if (loading){
