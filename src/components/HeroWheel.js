@@ -180,6 +180,7 @@ function HeroWheel() {
                                 dy={lineIdx === 0 ? firstLineDy : LINE_HEIGHT}
                                 textLength={lineOverflow ? maxTextWidth : undefined}
                                 lengthAdjust={lineOverflow ? 'spacingAndGlyphs' : undefined}
+                                className='capitalize'
                               >
                                 {line}
                               </tspan>

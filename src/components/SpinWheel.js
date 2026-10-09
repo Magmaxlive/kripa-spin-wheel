@@ -73,7 +73,7 @@ function SpinWheel({ gifts, rotation, isSpinning, onSpin, disabled }) {
       const startAngle = i * anglePer;
       const endAngle = (i + 1) * anglePer;
       const centerAngle = startAngle + anglePer / 2;
-      const color = WHEEL_COLORS[i % WHEEL_COLORS.length];
+      const color = gift.color || WHEEL_COLORS[i % WHEEL_COLORS.length];
       const flip = centerAngle > 90 && centerAngle < 270;
       const lines = wrapLabel(gift.name, maxCharsPerLine);
       return {
@@ -176,6 +176,7 @@ function SpinWheel({ gifts, rotation, isSpinning, onSpin, disabled }) {
                               dy={lineIdx === 0 ? firstLineDy : LINE_HEIGHT}
                               textLength={lineOverflow ? maxTextWidth : undefined}
                               lengthAdjust={lineOverflow ? 'spacingAndGlyphs' : undefined}
+                              className='capitalize'
                             >
                               {line}
                             </tspan>

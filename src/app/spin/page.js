@@ -7,9 +7,15 @@ import SpinWheel from '@/components/SpinWheel';
 const SPIN_DURATION_MS = 5500;
 const FULL_ROTATIONS = 6;
 
-function findSegmentIndexById(gifts, giftId) {
-  if (!giftId) return -1;
-  return gifts.findIndex((g) => g.id === giftId);
+const NO_PRIZE_SEGMENT = {
+  id: '__no_prize__',
+  name: 'Better luck next time',
+  color: '#4b5563',
+};
+
+function findSegmentIndexById(segments, segmentId) {
+  if (!segmentId) return -1;
+  return segments.findIndex((s) => s.id === segmentId);
 }
 
 function computeTargetRotation(currentRotation, segmentIndex, segmentCount) {
@@ -160,21 +166,62 @@ function SpinPage() {
       return;
     }
 
-    const giftName = data?.gift?.name;
-    const giftId = data?.gift?.id;
-    if (!data?.success || !giftId || !giftName) {
+    if (!data?.success) {
       setIsSpinning(false);
       requestInFlightRef.current = false;
       setErrorMessage('Unexpected response from the server. Please contact support.');
       return;
     }
 
-    const segmentIndex = findSegmentIndexById(gifts, giftId);
+    const wheelSegments = [...gifts, NO_PRIZE_SEGMENT];
+
+    if (data.won === false || !data.gift) {
+      const noPrizeIndex = wheelSegments.length - 1;
+      const targetRotation = computeTargetRotation(
+        rotation,
+        noPrizeIndex,
+        wheelSegments.length
+      );
+      setRotation(targetRotation);
+      setResult({
+        won: false,
+        name: null,
+        message: data.message || 'Sorry, better luck next time!',
+        matchedSegment: true,
+      });
+      animationTimerRef.current = setTimeout(() => {
+        setIsSpinning(false);
+        setHasSpun(true);
+        setShowModal(true);
+        requestInFlightRef.current = false;
+      }, SPIN_DURATION_MS);
+      return;
+    }
+
+    const giftName = data.gift.name;
+    const giftId = data.gift.id;
+    if (!giftId || !giftName) {
+      setIsSpinning(false);
+      requestInFlightRef.current = false;
+      setErrorMessage('Unexpected response from the server. Please contact support.');
+      return;
+    }
+
+    const segmentIndex = findSegmentIndexById(wheelSegments, giftId);
     const targetIndex = segmentIndex >= 0 ? segmentIndex : 0;
-    const targetRotation = computeTargetRotation(rotation, targetIndex, gifts.length);
+    const targetRotation = computeTargetRotation(
+      rotation,
+      targetIndex,
+      wheelSegments.length
+    );
 
     setRotation(targetRotation);
-    setResult({ id: giftId, name: giftName, matchedSegment: segmentIndex >= 0 });
+    setResult({
+      won: true,
+      id: giftId,
+      name: giftName,
+      matchedSegment: segmentIndex >= 0,
+    });
 
     animationTimerRef.current = setTimeout(() => {
       setIsSpinning(false);
@@ -243,7 +290,7 @@ function SpinPage() {
               </div>
             ) : (
               <SpinWheel
-                gifts={gifts}
+                gifts={[...gifts, NO_PRIZE_SEGMENT]}
                 rotation={rotation}
                 isSpinning={isSpinning}
                 onSpin={handleSpin}
@@ -262,10 +309,16 @@ function SpinPage() {
               </div>
             )}
             {hasSpun && result && !errorMessage && (
-              <p className="text-sm text-white/80">
-                You&apos;ve already spun — your prize is{' '}
-                <span className="font-semibold text-accent">{result.name}</span>.
-              </p>
+              result.won ? (
+                <p className="text-sm text-white/80">
+                  You&apos;ve already spun — your prize is{' '}
+                  <span className="font-semibold text-accent">{result.name}</span>.
+                </p>
+              ) : (
+                <p className="text-sm text-white/80">
+                  You&apos;ve already spun — better luck next time!
+                </p>
+              )
             )}
             {!hasSpun && !isSpinning && !errorMessage && !giftsLoading && gifts.length > 0 && (
               <p className="text-xs sm:text-sm text-white/70">
@@ -288,21 +341,45 @@ function SpinPage() {
           className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
         >
           <div className="relative w-full max-w-md rounded-2xl bg-white text-primary shadow-2xl p-6 sm:p-8 text-center">
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-accent to-amber-300 shadow-lg flex items-center justify-center text-3xl">
-              🎉
+            <div
+              className={`absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-3xl ${
+                result.won
+                  ? 'bg-gradient-to-br from-accent to-amber-300'
+                  : 'bg-gradient-to-br from-gray-400 to-gray-500'
+              }`}
+            >
+              {result.won ? '🎉' : '🙁'}
             </div>
-            <h2 id="win-title" className="mt-10 text-2xl sm:text-3xl font-extrabold uppercase">
-              Congratulations!
-            </h2>
-            <p className="mt-2 text-sm text-primary/70">You&apos;ve won:</p>
-            <p className="mt-3 text-2xl sm:text-3xl font-bold capitalize text-accent break-words">
-              {result.name}
-            </p>
-            {!result.matchedSegment && (
-              <p className="mt-2 text-xs text-primary/60">
-                Please show this screen at the counter to claim your gift.
-              </p>
+
+            {result.won ? (
+              <>
+                <h2 id="win-title" className="mt-10 text-2xl sm:text-3xl font-extrabold uppercase">
+                  Congratulations!
+                </h2>
+                <p className="mt-2 text-sm text-primary/70">You&apos;ve won:</p>
+                <p className="mt-3 text-2xl sm:text-3xl font-bold capitalize text-accent break-words">
+                  {result.name}
+                </p>
+                {!result.matchedSegment && (
+                  <p className="mt-2 text-xs text-primary/60">
+                    Please show this screen at the counter to claim your gift.
+                  </p>
+                )}
+                <p className="mt-3 text-xs text-primary/60">
+                  A confirmation email is on its way.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 id="win-title" className="mt-10 text-2xl sm:text-3xl font-extrabold uppercase">
+                  Better Luck Next Time!
+                </h2>
+                <p className="mt-3 text-sm text-primary/70">
+                  Sorry, you didn&apos;t win a prize this time. Thanks for taking part!
+                </p>
+              </>
             )}
+
             <button
               type="button"
               onClick={closeModal}
