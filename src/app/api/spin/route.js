@@ -19,7 +19,7 @@ export async function POST(){
         // verify participant
         const { data:participant, error:participantError}=
             await supabaseServer
-            .from('participant')
+            .from('participants')
             .select('id')
             .eq('access_token',token)
             .single();
@@ -31,34 +31,49 @@ export async function POST(){
             );
         }
 
-        // check whether participant already spun
-        const { data: existingSpin , error: spinCheckError } =
-            await supabaseServer
-            .from('spins')
-            .select('id,gift_id')
-            .eq('participant_id',participant.id)
-            .maybeSingle();
+        const { data , error } = await supabaseServer.rpc(
+            'perform_spin',
+            {p_participant_id: participant.id}
+        );
 
-        if (spinCheckError){
-            console.error('Spin check error:',spinCheckError);
+        if (error){
+            console.error('Spin RPC error : ',error)
+            
+            if (error.message.includes('ALREADY_SPUN')){
+                return NextResponse.json(
+                    {
+                        error:'You have already used your spin',
+                        alreadySpun : true,
+                    },
+                    { status:409 }
+                )
+            }
+
+            if (error.message.includes('NO_GIFTS_AVAILABLE')){
+                return NextResponse.json(
+                    { error:'Sorry, all gifts are currently unavailable',},
+                    { status:409 }
+                )
+            }
 
             return NextResponse.json(
-                { error: 'Unable to check your spin status.'},
-                { status: 500 }
+                { message:'Unable to complete your spin .Please try again'},
+                { status : 500}
             );
         }
 
-        if (existingSpin){
-            return NextResponse.json(
-                {
-                    error:'You have already used your spin',
-                    alreadySpun : true,
-                },
-                { status:409 }
-            );
-        }
+       
+        return NextResponse.json(data);
 
     } catch (error) {
+
+        console.error('Spin API error:',error);
+
+        return NextResponse.json(
+            { error:'Something went wrong. Please try again'},
+            { status: 500}
+        )
+
         
     }
 }
