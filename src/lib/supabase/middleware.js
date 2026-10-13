@@ -19,7 +19,7 @@ export async function updateSession(request){
                         request.cookies.set(name,value);
                     });
 
-                supabaseResponse = NextResponse.NextResponse.next({
+                supabaseResponse = NextResponse.next({
                     request,
                 });
 
