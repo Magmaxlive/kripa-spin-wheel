@@ -16,6 +16,7 @@ import {
     listGifts,
     setGiftActive,
     updateGift,
+    deleteGift
 } from './giftsClient'
 import { toast } from 'sonner'
 
@@ -52,7 +53,9 @@ function GiftsManager() {
     const [editingGift, setEditingGift] = useState(null)
 
     const [confirm, setConfirm] = useState(null) // { gift }
+    const [deleteConfrim,setDeleteConfrim] = useState(null)
     const [confirmLoading, setConfirmLoading] = useState(false)
+    const [deleteconfirmLoading, setDeleteConfirmLoading] = useState(false)
 
     const [togglingId, setTogglingId] = useState(null)
 
@@ -158,6 +161,30 @@ function GiftsManager() {
         }
     }
 
+    const handleDelete = async () => {
+        if (!deleteConfrim?.gift) return
+        const giftId = deleteConfrim.gift.id
+        setDeleteConfirmLoading(true)
+        setActionError('')
+
+        try {
+            const deleted = await deleteGift(giftId)
+            if (deleted) {
+                setGifts((current) =>
+                    current.filter((item) => item.id !== giftId)
+                )
+                toast.success('Gift deleted successfully!')
+            }
+            setDeleteConfrim(null)
+        } catch (error) {
+            console.error('Delete gift failed:', error)
+            toast.error(error.message || 'Unable to delete gift.')
+            setActionError('Unable to delete the gift. Please try again.')
+        } finally {
+            setDeleteConfirmLoading(false)
+        }
+    }
+
     const handleConfirmDeactivate = async () => {
         if (!confirm?.gift) return
         setConfirmLoading(true)
@@ -244,7 +271,7 @@ function GiftsManager() {
                             type="button"
                             onClick={load}
                             disabled={loading}
-                            className="inline-flex items-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-sm font-semibold text-primary hover:bg-button disabled:cursor-not-allowed disabled:opacity-60"
+                            className="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-sm font-semibold text-primary hover:bg-button disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             <RefreshCcw className="h-4 w-4" />
                             Refresh
@@ -252,7 +279,7 @@ function GiftsManager() {
                         <button
                             type="button"
                             onClick={openCreate}
-                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-accent hover:text-primary"
+                            className="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-accent hover:text-primary"
                         >
                             <Plus className="h-4 w-4" />
                             Add Gift
@@ -376,7 +403,7 @@ function GiftsManager() {
 
                                                         <button
                                                             type="button"
-                                                            onClick={() => openEdit(gift)}
+                                                            onClick={() => setDeleteConfrim({ gift })}
                                                             className="cursor-pointer inline-flex items-center gap-1 rounded-md border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-button"
                                                         >
                                                             <Trash className="h-3.5 w-3.5" />
@@ -442,7 +469,7 @@ function GiftsManager() {
                                                     type="button"
                                                     onClick={() => setConfirm({ gift })}
                                                     disabled={toggling}
-                                                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-md border border-red-200 px-2 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-md border border-orange-200 px-2 py-2 text-xs font-semibold text-orange-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                                                 >
                                                     <PowerOff className="h-3.5 w-3.5" />
                                                     Deactivate
@@ -458,6 +485,15 @@ function GiftsManager() {
                                                     Activate
                                                 </button>
                                             )}
+
+                                             <button
+                                                type="button"
+                                                onClick={() => setDeleteConfrim({ gift })}
+                                                className="cursor-pointer inline-flex items-center gap-1 rounded-md border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-button"
+                                            >
+                                                <Trash className="h-3.5 w-3.5" />
+                                                Delete
+                                            </button>
                                         </div>
                                     </li>
                                 )
@@ -494,6 +530,24 @@ function GiftsManager() {
                 onConfirm={handleConfirmDeactivate}
                 onCancel={() => {
                     if (!confirmLoading) setConfirm(null)
+                }}
+            />
+
+            <ConfirmDialog
+                open={!!deleteConfrim}
+                title="Delete gift?"
+                description={
+                    deleteConfrim?.gift
+                        ? `"${deleteConfrim.gift.name}" will stop appearing on the spin wheel until you reactivate it. You can turn it back on at any time.`
+                        : ''
+                }
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                tone="danger"
+                loading={deleteconfirmLoading}
+                onConfirm={handleDelete}
+                onCancel={() => {
+                    if (!deleteconfirmLoading) setDeleteConfrim(null)
                 }}
             />
         </div>

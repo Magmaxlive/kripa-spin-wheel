@@ -263,14 +263,14 @@ function GiftFormModal({ open, mode = 'create', initialValue, onClose, onSubmit 
                             type="button"
                             onClick={onClose}
                             disabled={submitting}
-                            className="rounded-lg border border-primary/20 px-4 py-2 text-sm font-semibold text-primary hover:bg-button disabled:cursor-not-allowed disabled:opacity-60"
+                            className="cursor-pointer rounded-lg border border-primary/20 px-4 py-2 text-sm font-semibold text-primary hover:bg-button disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                            className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {submitting
                                 ? 'Saving...'
