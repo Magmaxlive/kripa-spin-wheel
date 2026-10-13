@@ -34,17 +34,20 @@ export async function listGifts() {
 
 // Replace with: POST /api/admin/gifts
 export async function createGift(input) {
-    await wait();
-    const gift = {
-        id: `preview-${Date.now()}`,
-        name: input.name,
-        stock: input.stock,
-        weight: input.weight,
-        is_active: input.is_active,
-        created_at: new Date().toISOString(),
-    };
-    gifts = [...gifts, gift];
-    return clone(gift);
+    const response = await fetch (API_URL,{
+        method:'POST',
+        headers:{
+            "Content-Type": "application/json",
+        },
+        body:JSON.stringify({
+            ...input,
+            stock: Number(input.stock),
+            weight: Number(input.weight),
+        }),
+    })
+
+    const data = await handleResponse(response);
+    return data.gift;
 }
 
 // Replace with: PATCH /api/admin/gifts/:id

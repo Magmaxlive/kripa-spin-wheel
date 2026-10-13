@@ -116,7 +116,7 @@ function GiftsManager() {
             } else {
                 const created = await createGift(values)
                 if (created) {
-                    setGifts((current) => [...current, created])
+                    setGifts((current) => [created,...current])
                 }
             }
             setFormOpen(false)

@@ -61,8 +61,8 @@ function GiftFormModal({ open, mode = 'create', initialValue, onClose, onSubmit 
             try {
                 await onSubmit({
                     name: value.name.trim(),
-                    stock: value.stock,
-                    weight: value.weight,
+                    stock: Number(value.stock),
+                    weight: Number(value.weight),
                     is_active: value.is_active,
                 })
             } catch (error) {
