@@ -107,3 +107,64 @@ export async function PATCH(request,{params}){
     }
 }
 
+export async function DELETE(request,{params}){
+    try {
+        const auth = await requireAdmin();
+
+         if(!auth.ok){
+            return NextResponse.json(
+                {error:auth.error},
+                {status:auth.status}
+            );
+        }
+
+        const {id} = await params
+
+        const {data:gift,error:fetchError} = await supabaseServer
+        .from('gifts')
+        .select('id,name')
+        .eq('id',id)
+        .maybeSingle();
+
+        if (fetchError){
+            console.error('Fetch gift before deletion failed :',fetchError);
+            return NextResponse.json(
+                {error:'Unable to find gifts.'},
+                {status:500}
+            )
+        }
+
+        if(!gift){
+            return NextResponse.json(
+                {error:'Gift not found'},
+                {status:404}
+            )
+        }
+
+        const {error:deletError} = await supabaseServer
+        .from('gifts')
+        .delete()
+        .eq('id',id)
+
+        if (deletError){
+            console.error('Delete gift error:',deletError)
+            return NextResponse.json(
+                {error:'Unable to delete gift'},
+                {status:500}
+            )
+        }
+
+        return NextResponse.json({
+            success:true,
+            message:'Gift deleted successfully',
+            id:gift.id
+        })
+    } catch (error) { 
+         console.error("Delete gift API error:", error);
+
+        return NextResponse.json(
+            { error: "Internal server error." },
+            { status: 500 }
+        );
+    }
+}
