@@ -1,6 +1,6 @@
 import React from 'react'
 import DashboardHeader from '@/components/admin/DashboardHeader'
-import PlaceholderPanel from '@/components/admin/PlaceholderPanel'
+import GiftsManager from '@/components/admin/gifts/GiftsManager'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,10 +11,7 @@ function GiftsPage() {
                 title="Gifts"
                 subtitle="Create, edit, and manage the prizes available in the spin wheel."
             />
-            <PlaceholderPanel
-                title="Gift management is on its way"
-                description="This page will allow you to add new gifts, update stock, adjust weights, and activate or deactivate prizes. The dashboard overview already reflects live stock levels for active gifts."
-            />
+            <GiftsManager />
         </div>
     )
 }
