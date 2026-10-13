@@ -3,18 +3,9 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Resend } from "resend";
+import { renderWinEmail } from "@/lib/email/winTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-function escapeHtml(value = "") {
-    return String(value).replace(/[&<>"']/g, (char) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-    })[char]);
-}
 
 export async function POST() {
     try {
@@ -110,17 +101,19 @@ export async function POST() {
 
         if (participantDetails?.email) {
             try {
+                const { subject, html, text } = renderWinEmail({
+                    name: participantDetails.name,
+                    giftName,
+                    logoUrl:
+                        "https://s3.ap-south-1.amazonaws.com/kripa.co.nz/media/logos/kripalogo.svg",
+                });
+
                 const { error: sendError } = await resend.emails.send({
                     from: process.env.EMAIL_FROM,
                     to: participantDetails.email,
-                    subject: "Your Spin & Win Result",
-                    html: `
-                        <h2>Congratulations, ${escapeHtml(participantDetails.name)}!</h2>
-                        <p>Thank you for participating in our Spin & Win campaign.</p>
-                        <p>You won:</p>
-                        <h3>${escapeHtml(giftName)}</h3>
-                        <p>Thank you for participating!</p>
-                    `,
+                    subject,
+                    html,
+                    text,
                 });
 
                 if (sendError) {
