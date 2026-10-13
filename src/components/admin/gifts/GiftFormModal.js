@@ -65,6 +65,7 @@ function GiftFormModal({ open, mode = 'create', initialValue, onClose, onSubmit 
                     weight: Number(value.weight),
                     is_active: value.is_active,
                 })
+                form.reset();
             } catch (error) {
                 console.error('Gift form submit failed:', error)
                 setServerError(

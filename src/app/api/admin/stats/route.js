@@ -86,7 +86,7 @@ export async function GET() {
             supabase
                 .from("gifts")
                 .select("id, name, stock, weight, is_active")
-                .order("created_at", { ascending: true }),
+                .order("created_at", { ascending: false }),
         ]);
 
         // Check for database query errors.

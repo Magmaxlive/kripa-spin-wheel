@@ -2,6 +2,8 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import { requireAdmin } from '@/lib/supabase/require-admin'
+import { Toaster } from "sonner";
+
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +21,7 @@ async function ProtectedAdminLayout({ children }) {
                 <main className="flex-1 overflow-x-hidden">
                     <div className="mx-auto w-full max-w-7xl px-4 py-6 tablet:px-8 tablet:py-10">
                         {children}
+                        <Toaster position='top-right' richColors/>
                     </div>
                 </main>
             </div>

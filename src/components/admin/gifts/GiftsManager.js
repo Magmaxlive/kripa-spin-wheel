@@ -17,6 +17,7 @@ import {
     setGiftActive,
     updateGift,
 } from './giftsClient'
+import { toast } from 'sonner'
 
 function formatDate(value) {
     if (!value) return '—'
@@ -104,23 +105,32 @@ function GiftsManager() {
     const handleFormSubmit = useCallback(
         async (values) => {
             setActionError('')
-            if (editingGift) {
+            try {
+                 if (editingGift) {
                 const updated = await updateGift(editingGift.id, values)
                 if (updated) {
                     setGifts((current) =>
                         current.map((gift) =>
                             gift.id === updated.id ? updated : gift
                         )
-                    )
+                    );
+
+                    toast.success('Gift updated successfully!')
                 }
             } else {
                 const created = await createGift(values)
                 if (created) {
                     setGifts((current) => [created,...current])
+                    toast.success('Gift added successfully!')
                 }
             }
             setFormOpen(false)
             setEditingGift(null)
+
+            } catch (error) {
+                console.error("Gift form submit failed:", error);
+                toast.error(error.message || "Unable to save gift.");
+            }
         },
         [editingGift]
     )
@@ -136,9 +146,12 @@ function GiftsManager() {
                         item.id === updated.id ? updated : item
                     )
                 )
+
+                toast.success("Gift activated successfully!");
             }
         } catch (err) {
             console.error('Activate gift failed:', err)
+            toast.error("Gift activation failed!");
             setActionError('Unable to update the gift. Please try again.')
         } finally {
             setTogglingId(null)
@@ -157,10 +170,12 @@ function GiftsManager() {
                         item.id === updated.id ? updated : item
                     )
                 )
+                toast.success("Gift deactivated successfully!");
             }
             setConfirm(null)
         } catch (err) {
             console.error('Deactivate gift failed:', err)
+            toast.error("Gift deactivation failed!");
             setActionError('Unable to deactivate the gift. Please try again.')
         } finally {
             setConfirmLoading(false)
