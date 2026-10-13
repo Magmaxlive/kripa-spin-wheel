@@ -32,7 +32,6 @@ export async function listGifts() {
     return data.gifts;
 }
 
-// Replace with: POST /api/admin/gifts
 export async function createGift(input) {
     const response = await fetch (API_URL,{
         method:'POST',
@@ -50,30 +49,37 @@ export async function createGift(input) {
     return data.gift;
 }
 
-// Replace with: PATCH /api/admin/gifts/:id
 export async function updateGift(id, input) {
-    await wait();
-    gifts = gifts.map((gift) =>
-        gift.id === id
-            ? {
-                  ...gift,
-                  name: input.name,
-                  stock: input.stock,
-                  weight: input.weight,
-                  is_active: input.is_active,
-              }
-            : gift
+    const response = await fetch(
+        `${API_URL}/${encodeURIComponent(id)}`,
+        {
+            method:'PATCH',
+            headers:{
+                "Content-Type": "application/json",
+            },
+            body:JSON.stringify(input)
+        }
     );
-    const updated = gifts.find((gift) => gift.id === id);
-    return updated ? clone(updated) : null;
+
+    const data = await handleResponse(response);
+    return data.gift;
 }
 
-// Replace with: PATCH /api/admin/gifts/:id/active { is_active }
+
 export async function setGiftActive(id, isActive) {
-    await wait();
-    gifts = gifts.map((gift) =>
-        gift.id === id ? { ...gift, is_active: isActive } : gift
+    const response = await fetch(
+        `${API_URL}/${encodeURIComponent(id)}`,
+        {
+            method:'PATCH',
+            headers:{
+                "Content-Type": "application/json",
+            },
+            body:JSON.stringify({
+                is_active:isActive,
+            })
+        }
     );
-    const updated = gifts.find((gift) => gift.id === id);
-    return updated ? clone(updated) : null;
+
+    const data = await handleResponse(response);
+    return data.gift;
 }

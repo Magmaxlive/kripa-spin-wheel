@@ -70,7 +70,7 @@ function ConfirmDialog({
                         type="button"
                         onClick={onCancel}
                         disabled={loading}
-                        className="rounded-md p-1 text-gray-500 hover:bg-button hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                        className="cursor-pointer rounded-md p-1 text-gray-500 hover:bg-button hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                         aria-label="Close"
                     >
                         <X className="h-4 w-4" />
@@ -82,7 +82,7 @@ function ConfirmDialog({
                         type="button"
                         onClick={onCancel}
                         disabled={loading}
-                        className="rounded-lg border border-primary/20 px-4 py-2 text-sm font-semibold text-primary hover:bg-button disabled:cursor-not-allowed disabled:opacity-60"
+                        className="cursor-pointer rounded-lg border border-primary/20 px-4 py-2 text-sm font-semibold text-primary hover:bg-button disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {cancelLabel}
                     </button>
@@ -90,7 +90,7 @@ function ConfirmDialog({
                         type="button"
                         onClick={onConfirm}
                         disabled={loading}
-                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${confirmClasses}`}
+                        className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${confirmClasses}`}
                     >
                         {loading ? 'Working...' : confirmLabel}
                     </button>
