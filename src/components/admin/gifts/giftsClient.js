@@ -83,3 +83,15 @@ export async function setGiftActive(id, isActive) {
     const data = await handleResponse(response);
     return data.gift;
 }
+
+export async function deleteGift(id){
+    const response = await fetch(
+        `${API_URL}/${encodeURIComponent(id)}`,
+        {
+            method:'DELETE',
+            
+        }
+    );
+
+    return await handleResponse(response);
+}
