@@ -13,7 +13,6 @@ import StatCard from '../StatCard'
 import SpinResultsFilters from './SpinResultsFilters'
 import SpinResultsTable from './SpinResultsTable'
 import SpinResultDetailsModal from './SpinResultDetailsModal'
-import { MOCK_SPIN_RESULTS, getMockGiftOptions } from './mockSpinResults'
 
 // TODO: Replace mock data with the real `/api/admin/spins` endpoint once
 // available. The UI below is structured so the data source is swappable
@@ -156,91 +155,124 @@ function filterSpins(spins, { search, outcome, giftId, dateRange }) {
 }
 
 function SpinResultsManager() {
-    // TODO (API): replace this seed state with a fetch-and-store flow.
-    const [allSpins] = useState(() => MOCK_SPIN_RESULTS)
-    const [loading, setLoading] = useState(false)
-    const [error] = useState('')
 
-    const [searchInput, setSearchInput] = useState('')
-    const [search, setSearch] = useState('')
-    const [outcome, setOutcome] = useState('all')
-    const [giftId, setGiftId] = useState('all')
-    const [dateRange, setDateRange] = useState('all')
+const [allSpins, setAllSpins] = useState([])
+const [giftOptions, setGiftOptions] = useState([])
+const [loading, setLoading] = useState(true)
+const [error, setError] = useState('')
 
-    const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+const [summary, setSummary] = useState({
+    totalSpins: 0,
+    giftsWon: 0,
+    noPrize: 0,
+    uniqueParticipants: 0,
+})
 
-    const [selectedSpin, setSelectedSpin] = useState(null)
-    const [modalOpen, setModalOpen] = useState(false)
+const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
+    totalPages: 0,
+})
 
-    const [exporting, setExporting] = useState(false)
+const [searchInput, setSearchInput] = useState('')
+const [search, setSearch] = useState('')
+const [outcome, setOutcome] = useState('all')
+const [giftId, setGiftId] = useState('all')
+const [dateRange, setDateRange] = useState('all')
 
-    const debounceTimerRef = useRef(null)
+const [page, setPage] = useState(1)
+const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
-    useEffect(() => {
-        return () => {
-            if (debounceTimerRef.current) {
-                clearTimeout(debounceTimerRef.current)
-            }
-        }
-    }, [])
+const [selectedSpin, setSelectedSpin] = useState(null)
+const [modalOpen, setModalOpen] = useState(false)
+const [exporting, setExporting] = useState(false)
 
-    const giftOptions = useMemo(() => getMockGiftOptions(), [])
+const debounceTimerRef = useRef(null)
 
-    const filteredSpins = useMemo(
-        () =>
-            filterSpins(allSpins, {
+const filteredSpins = allSpins
+const pagedSpins = allSpins
+
+const total = pagination.total
+const totalPages = pagination.totalPages
+const safePage = page
+
+const pageStart = total === 0 ? 0 : (safePage - 1) * pageSize + 1
+const pageEnd = Math.min(safePage * pageSize, total)
+
+const canGoPrev = page > 1
+const canGoNext = page < totalPages
+
+const hasActiveFilters =
+    Boolean(search) ||
+    outcome !== 'all' ||
+    giftId !== 'all' ||
+    dateRange !== 'all'
+
+
+
+
+useEffect(() => {
+    const controller = new AbortController()
+
+    async function fetchSpinResults() {
+        setLoading(true)
+        setError('')
+
+        try {
+            const params = new URLSearchParams({
                 search,
                 outcome,
                 giftId,
                 dateRange,
-            }),
-        [allSpins, search, outcome, giftId, dateRange]
-    )
+                page: String(page),
+                pageSize: String(pageSize),
+            })
 
-    const summary = useMemo(() => {
-        const totalSpins = allSpins.length
-        let giftsWon = 0
-        const uniqueParticipants = new Set()
-        for (const spin of allSpins) {
-            if (spin.gift_id) giftsWon += 1
-            if (spin.participant_id) {
-                uniqueParticipants.add(spin.participant_id)
+            const response = await fetch(
+                `/api/admin/spins?${params.toString()}`,
+                {
+                    cache: 'no-store',
+                    signal: controller.signal,
+                }
+            )
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error || 'Unable to load spin results.'
+                )
+            }
+
+            setAllSpins(result.spins ?? [])
+            setGiftOptions(result.giftOptions ?? [])
+            setSummary({
+                totalSpins: result.summary?.totalSpins ?? 0,
+                giftsWon: result.summary?.giftsWon ?? 0,
+                noPrize: result.summary?.noPrize ?? 0,
+                uniqueParticipants: result.summary?.uniqueParticipants ?? 0,
+            })
+            setPagination(result.pagination)
+        } catch (err) {
+            if (err.name === 'AbortError') return
+
+            console.error('Spin results fetch error:', err)
+            setError(err.message || 'Unable to load spin results.')
+            setAllSpins([])
+        } finally {
+            if (!controller.signal.aborted) {
+                setLoading(false)
             }
         }
-        return {
-            totalSpins,
-            giftsWon,
-            noPrize: totalSpins - giftsWon,
-            uniqueParticipants: uniqueParticipants.size,
-        }
-    }, [allSpins])
+    }
 
-    const total = filteredSpins.length
-    const totalPages = total === 0 ? 0 : Math.ceil(total / pageSize)
-    const safePage = Math.min(page, Math.max(1, totalPages || 1))
-    const pageStart = total === 0 ? 0 : (safePage - 1) * pageSize + 1
-    const pageEnd = Math.min(safePage * pageSize, total)
-    const pagedSpins = useMemo(
-        () =>
-            filteredSpins.slice(
-                (safePage - 1) * pageSize,
-                safePage * pageSize
-            ),
-        [filteredSpins, safePage, pageSize]
-    )
+    fetchSpinResults()
 
-    const canGoPrev = safePage > 1
-    const canGoNext = totalPages > 0 && safePage < totalPages
+    return () => controller.abort()
+}, [search, outcome, giftId, dateRange, page, pageSize])
 
-    const hasActiveFilters = useMemo(
-        () =>
-            Boolean(search) ||
-            outcome !== 'all' ||
-            giftId !== 'all' ||
-            dateRange !== 'all',
-        [search, outcome, giftId, dateRange]
-    )
+
 
     const handleSearchInputChange = (value) => {
         setSearchInput(value)
