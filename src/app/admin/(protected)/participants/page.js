@@ -1,6 +1,6 @@
 import React from 'react'
 import DashboardHeader from '@/components/admin/DashboardHeader'
-import PlaceholderPanel from '@/components/admin/PlaceholderPanel'
+import ParticipantsManager from '@/components/admin/participants/ParticipantsManager'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,12 +9,9 @@ function ParticipantsPage() {
         <div className="flex flex-col gap-6">
             <DashboardHeader
                 title="Participants"
-                subtitle="Review participants who registered for the Spin & Win campaign."
+                subtitle="Manage registered participants and track their spin status."
             />
-            <PlaceholderPanel
-                title="Participant directory is on its way"
-                description="A searchable, paginated list of participants with contact details and spin status will land here. Recent registrations are available on the dashboard overview."
-            />
+            <ParticipantsManager />
         </div>
     )
 }
