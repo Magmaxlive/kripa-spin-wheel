@@ -1,0 +1,192 @@
+// Mock spin-result data for frontend development only.
+// Replace with real API data when the backend endpoint is wired up.
+// Shape mirrors the expected spins + joined participant/gift fields.
+
+export const MOCK_SPIN_RESULTS = [
+    {
+        id: 'spin-001',
+        participant_id: 'participant-001',
+        participant_name: 'Aarav Sharma',
+        phone: '9876543210',
+        email: 'aarav.sharma@example.com',
+        gift_id: 'gift-ipad',
+        gift_name: 'iPad 10th Gen',
+        created_at: '2026-10-14T09:12:00Z',
+    },
+    {
+        id: 'spin-002',
+        participant_id: 'participant-002',
+        participant_name: 'Priya Nair',
+        phone: '9123456780',
+        email: 'priya.nair@example.com',
+        gift_id: null,
+        gift_name: null,
+        created_at: '2026-10-14T07:45:00Z',
+    },
+    {
+        id: 'spin-003',
+        participant_id: 'participant-003',
+        participant_name: 'Mohammed Rafi',
+        phone: '9988776655',
+        email: null,
+        gift_id: 'gift-voucher-500',
+        gift_name: '₹500 Gift Voucher',
+        created_at: '2026-10-13T18:22:00Z',
+    },
+    {
+        id: 'spin-004',
+        participant_id: 'participant-004',
+        participant_name: 'Lakshmi Menon',
+        phone: '9765432108',
+        email: 'lakshmi.menon@example.com',
+        gift_id: 'gift-earbuds',
+        gift_name: 'Wireless Earbuds',
+        created_at: '2026-10-13T14:05:00Z',
+    },
+    {
+        id: 'spin-005',
+        participant_id: 'participant-005',
+        participant_name: 'Rohan Verma',
+        phone: '9345678912',
+        email: 'rohan.verma@example.com',
+        gift_id: null,
+        gift_name: null,
+        created_at: '2026-10-12T11:30:00Z',
+    },
+    {
+        id: 'spin-006',
+        participant_id: 'participant-006',
+        participant_name: 'Sneha Pillai',
+        phone: '9654321098',
+        email: 'sneha.pillai@example.com',
+        gift_id: 'gift-tshirt',
+        gift_name: 'Branded T-Shirt',
+        created_at: '2026-10-11T16:50:00Z',
+    },
+    {
+        id: 'spin-007',
+        participant_id: 'participant-007',
+        participant_name: 'Vikram Iyer',
+        phone: '9888112233',
+        email: 'vikram.iyer@example.com',
+        gift_id: null,
+        gift_name: null,
+        created_at: '2026-10-10T10:15:00Z',
+    },
+    {
+        id: 'spin-008',
+        participant_id: 'participant-008',
+        participant_name: 'Anjali Gupta',
+        phone: '9876501234',
+        email: 'anjali.gupta@example.com',
+        gift_id: 'gift-voucher-500',
+        gift_name: '₹500 Gift Voucher',
+        created_at: '2026-10-09T13:40:00Z',
+    },
+    {
+        id: 'spin-009',
+        participant_id: 'participant-009',
+        participant_name: 'Karthik Raman',
+        phone: '9123098765',
+        email: null,
+        gift_id: 'gift-mug',
+        gift_name: 'Ceramic Mug',
+        created_at: '2026-10-08T09:00:00Z',
+    },
+    {
+        id: 'spin-010',
+        participant_id: 'participant-010',
+        participant_name: 'Divya Krishnan',
+        phone: '9345671234',
+        email: 'divya.k@example.com',
+        gift_id: null,
+        gift_name: null,
+        created_at: '2026-10-07T15:25:00Z',
+    },
+    {
+        id: 'spin-011',
+        participant_id: 'participant-011',
+        participant_name: 'Arjun Das',
+        phone: '9876123450',
+        email: 'arjun.das@example.com',
+        gift_id: 'gift-ipad',
+        gift_name: 'iPad 10th Gen',
+        created_at: '2026-10-05T12:10:00Z',
+    },
+    {
+        id: 'spin-012',
+        participant_id: 'participant-012',
+        participant_name: 'Meera Thomas',
+        phone: '9988001122',
+        email: 'meera.thomas@example.com',
+        gift_id: 'gift-earbuds',
+        gift_name: 'Wireless Earbuds',
+        created_at: '2026-10-03T17:35:00Z',
+    },
+    {
+        id: 'spin-013',
+        participant_id: 'participant-013',
+        participant_name: 'Siddharth Rao',
+        phone: '9876789012',
+        email: 'sid.rao@example.com',
+        gift_id: null,
+        gift_name: null,
+        created_at: '2026-09-28T08:50:00Z',
+    },
+    {
+        id: 'spin-014',
+        participant_id: 'participant-014',
+        participant_name: 'Neha Agarwal',
+        phone: '9654987321',
+        email: 'neha.agarwal@example.com',
+        gift_id: 'gift-tshirt',
+        gift_name: 'Branded T-Shirt',
+        created_at: '2026-09-22T19:05:00Z',
+    },
+    {
+        id: 'spin-015',
+        participant_id: 'participant-015',
+        participant_name: 'Rahul Joseph',
+        phone: '9123876540',
+        email: null,
+        gift_id: null,
+        gift_name: null,
+        created_at: '2026-09-15T10:00:00Z',
+    },
+    {
+        id: 'spin-016',
+        participant_id: 'participant-016',
+        participant_name: 'Isha Bhat',
+        phone: '9876320145',
+        email: 'isha.bhat@example.com',
+        gift_id: 'gift-mug',
+        gift_name: 'Ceramic Mug',
+        created_at: '2026-09-10T11:20:00Z',
+    },
+    {
+        id: 'spin-017',
+        participant_id: 'participant-017',
+        participant_name: 'Nikhil Pai',
+        phone: '9345120987',
+        email: 'nikhil.pai@example.com',
+        gift_id: 'gift-voucher-500',
+        gift_name: '₹500 Gift Voucher',
+        created_at: '2026-09-02T14:15:00Z',
+    },
+]
+
+// Derive the set of distinct gifts for the gift filter dropdown.
+export function getMockGiftOptions() {
+    const seen = new Map()
+    for (const row of MOCK_SPIN_RESULTS) {
+        if (row.gift_id && row.gift_name && !seen.has(row.gift_id)) {
+            seen.set(row.gift_id, {
+                id: row.gift_id,
+                name: row.gift_name,
+            })
+        }
+    }
+    return Array.from(seen.values()).sort((a, b) =>
+        a.name.localeCompare(b.name)
+    )
+}
