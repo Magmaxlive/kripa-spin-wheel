@@ -85,7 +85,7 @@ function SpinResultsFilters({
 
             <div className="flex flex-wrap items-center gap-2">
                 <label className="flex items-center gap-2 text-xs text-gray-500">
-                    <span className="sr-only sm:not-sr-only">Outcome</span>
+                    
                     <select
                         value={outcome}
                         onChange={(event) => onOutcomeChange?.(event.target.value)}
@@ -101,7 +101,7 @@ function SpinResultsFilters({
                 </label>
 
                 <label className="flex items-center gap-2 text-xs text-gray-500">
-                    <span className="sr-only sm:not-sr-only">Gift</span>
+                   
                     <select
                         value={giftId}
                         onChange={(event) => onGiftIdChange?.(event.target.value)}
@@ -118,7 +118,7 @@ function SpinResultsFilters({
                 </label>
 
                 <label className="flex items-center gap-2 text-xs text-gray-500">
-                    <span className="sr-only sm:not-sr-only">Date</span>
+                    
                     <select
                         value={dateRange}
                         onChange={(event) =>

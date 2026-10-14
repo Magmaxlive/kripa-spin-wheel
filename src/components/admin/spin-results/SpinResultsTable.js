@@ -78,7 +78,7 @@ function OutcomeCell({ spin }) {
     const hasGift = Boolean(spin.gift_id)
     if (hasGift) {
         return (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
                 <OutcomeBadge hasGift />
                 <span className="text-xs text-gray-600">
                     {spin.gift_name || '—'}

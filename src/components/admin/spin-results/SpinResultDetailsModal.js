@@ -14,7 +14,7 @@ function formatDateTime(value) {
 export function OutcomeBadge({ hasGift }) {
     return (
         <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+            className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
                 hasGift
                     ? 'bg-primary/10 text-primary'
                     : 'bg-gray-200 text-gray-600'
@@ -28,7 +28,7 @@ export function OutcomeBadge({ hasGift }) {
             ) : (
                 <>
                     <Ban className="h-3 w-3" />
-                    Better Luck Next Time
+                    No Prize
                 </>
             )}
         </span>
