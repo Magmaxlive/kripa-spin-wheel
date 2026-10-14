@@ -5,7 +5,7 @@ import { Search, X, Download, RefreshCcw } from 'lucide-react'
 export const OUTCOME_OPTIONS = [
     { value: 'all', label: 'All Outcomes' },
     { value: 'gift', label: 'Gift Won' },
-    { value: 'no_prize', label: 'Better Luck Next Time' },
+    { value: 'no_prize', label: 'No Prize' },
 ]
 
 export const DATE_RANGE_OPTIONS = [
