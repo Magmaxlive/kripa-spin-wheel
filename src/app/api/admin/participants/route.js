@@ -15,7 +15,7 @@ export async function GET(request){
 
     const {searchParams} = new URL(request.url);
     const search = searchParams.get('search')?.trim()?? '';
-    const spinStatus = searchParams.get('spinStatus') ?? 'all';
+    const spinStatus = searchParams.get('status') ?? 'all';
     const page = Number(searchParams.get('page')?? 1);
     const pageSize = Number(searchParams.get('pageSize') ?? 10);
 
@@ -48,7 +48,7 @@ export async function GET(request){
     let query = supabaseServer
     .from('participants')
     .select(
-        'id,name,phone,email,created_at,spins(id)',
+        'id,name,phone,email,created_at',
         {count:'exact'}
     );
 
@@ -63,13 +63,7 @@ export async function GET(request){
         }
     }
 
-    // apply sin status filter using the related spins records
-
-    if (spinStatus === 'spun'){
-        query = query.not('spins','is',null);
-    } else if (spinStatus === 'not_spun'){
-        query = query.is('spins',null)
-    }
+    
 
     const from = ( page -1 ) * pageSize;
     const to = from + pageSize - 1;
@@ -103,23 +97,48 @@ export async function GET(request){
         (spins ?? []).map((spin)=> spin.participant_id)
     )
 
-    const participants = (data ?? []).map((participant)=>({
-        id:participant.id,
-        name:participant.name,
-        phone:participant.phone,
-        email:participant.email,
-        created_at:participant.created_at,
-        has_spun: spunIds.has(participant.id)
+        let participants = (data ?? []).map((participant) => ({
+        ...participant,
+        has_spun: spunIds.has(participant.id),
     }));
 
+
+    console.log("Spin filter received:", spinStatus);
+console.log(
+    "Participant statuses:",
+    participants.map((p) => ({
+        name: p.name,
+        has_spun: p.has_spun,
+    }))
+);
+
+
+
+    // apply sin status filter using the related spins records
+
+    if (spinStatus === 'spun'){
+        participants = participants.filter(
+            (participant) => participant.has_spun
+        );
+    } else if (spinStatus === 'not_spun'){
+        participants = participants.filter(
+            (participant) => !participant.has_spun
+        );
+    }
+
+    const total = participants.length;
+    const startIndex = (page - 1) * pageSize;
+    const paginatedParticipants = participants.slice(
+        startIndex,
+        startIndex + pageSize
+    );
+
+
     return NextResponse.json(
-        {participants,
-            pagination:{
-                page,
-                pageSize,
-                total: count ?? 0,
-                totalPages: Math.ceil((count ?? 0)/ pageSize),
-            },
+        {participants:paginatedParticipants,
+        total,
+        page,
+        pageSize,
         });
 
     } catch (error) {
