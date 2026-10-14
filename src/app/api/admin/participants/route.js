@@ -46,7 +46,7 @@ export async function GET(request){
     // fetch participants and their spin records
 
     let query = supabaseServer
-    .from('pariticipants')
+    .from('participants')
     .select(
         'id,name,phone,email,created_at,spins(id)',
         {count:'exact'}
@@ -86,15 +86,30 @@ export async function GET(request){
         );
     }
 
+    const {data:spins,error:spinsError} = await supabaseServer
+    .from('spins')
+    .select('participant_id');
+
+    if (spinsError){
+        console.error('Participant spins fetch error :',spinsError);
+
+        return NextResponse.json(
+            {error:'Unable to load participant spin status.'},
+            {status:500}
+        )
+    }
+
+    const spunIds = new Set(
+        (spins ?? []).map((spin)=> spin.participant_id)
+    )
+
     const participants = (data ?? []).map((participant)=>({
         id:participant.id,
         name:participant.name,
         phone:participant.phone,
         email:participant.email,
         created_at:participant.created_at,
-        has_spun: Array.isArray(participant.spins)
-        ? participant.spins.length > 0
-        : false
+        has_spun: spunIds.has(participant.id)
     }));
 
     return NextResponse.json(
