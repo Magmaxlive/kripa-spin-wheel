@@ -103,17 +103,6 @@ export async function GET(request){
     }));
 
 
-    console.log("Spin filter received:", spinStatus);
-console.log(
-    "Participant statuses:",
-    participants.map((p) => ({
-        name: p.name,
-        has_spun: p.has_spun,
-    }))
-);
-
-
-
     // apply sin status filter using the related spins records
 
     if (spinStatus === 'spun'){
@@ -126,19 +115,15 @@ console.log(
         );
     }
 
-    const total = participants.length;
-    const startIndex = (page - 1) * pageSize;
-    const paginatedParticipants = participants.slice(
-        startIndex,
-        startIndex + pageSize
-    );
-
 
     return NextResponse.json(
-        {participants:paginatedParticipants,
-        total,
-        page,
-        pageSize,
+        {participants: data ?? [],
+            pagination:{
+                total: count ?? 0,
+                page,
+                pageSize,
+                totalPages: Math.ceil((count ?? 0) / pageSize)
+            },
         });
 
     } catch (error) {
