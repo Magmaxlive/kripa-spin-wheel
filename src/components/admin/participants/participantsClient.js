@@ -100,20 +100,34 @@ export async function getParticipant(id) {
     return data?.participant ?? null
 }
 
-export async function exportParticipants(params = {}) {
-    const query = buildQueryString({
-        search: params.search,
-        status: params.status,
-    })
+export async function exportParticipants({search = '',status='all'}) {
+    const pageSize = 50;
+    let page = 1;
+    let allParticipants = []
+    let total = 0;
 
-    const response = await fetch(`${API_URL}/export${query}`, {
-        method: 'GET',
-        cache: 'no-store',
-        signal: params.signal,
-    })
+    do{
+        const params = new URLSearchParams({
+            search,
+            status,
+            page: String(page),
+            pageSize : String(pageSize)
+        });
 
-    const data = await handleResponse(response)
-    return Array.isArray(data?.participants) ? data.participants : []
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+
+        const data = await handleResponse(response);
+
+        const participants = data.participants ?? [];
+
+        allParticipants = allParticipants.concat(participants);
+        total = data.total ?? 0;
+        page+=1
+        
+    } while(allParticipants.length<total);
+
+    return allParticipants
+
 }
 
 export async function getParticipantStats() {

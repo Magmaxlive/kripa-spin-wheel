@@ -28,7 +28,7 @@ function ParticipantsFilters({
                         <Search className="h-4 w-4" />
                     </span>
                     <input
-                        type="search"
+                        type="text"
                         value={searchInput}
                         onChange={(event) =>
                             onSearchInputChange?.(event.target.value)

@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/supabase/require-admin";
-import { promise } from "zod";
-import { notFound } from "next/navigation";
 
 export async function GET(){
     try {
-        const auth = requireAdmin();
+        const auth = await requireAdmin();
 
         if (!auth.ok){
             return NextResponse.json(
@@ -18,14 +16,14 @@ export async function GET(){
         const [
             { count : totalParticipants,error:participantsError},
             { count: spunParticipants,error:spinsError}
-            ]  = await promise.all([
+            ]  = await Promise.all([
                 supabaseServer
                 .from('participants')
-                .select('id',{count:'exact',head:'true'}),
+                .select('id',{count:'exact',head:true}),
 
                 supabaseServer
                 .from('spins')
-                .select('id',{count:'exact',head:'true'})
+                .select('id',{count:'exact',head:true})
             ]);
 
             if(participantsError || spinsError){
@@ -47,8 +45,8 @@ export async function GET(){
                     totalParticipants:total,
                     spunParticipants:spun,
                     notSpunParticipants:Math.max(0,total-spun)
-                }
-            )
+                });
+
     } catch (error) {
         console.error("Participant stats API error:", error);
 

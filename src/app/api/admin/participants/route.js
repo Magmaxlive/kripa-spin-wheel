@@ -117,7 +117,7 @@ export async function GET(request){
 
 
     return NextResponse.json(
-        {participants: data ?? [],
+        {participants: participants ?? [],
             pagination:{
                 total: count ?? 0,
                 page,
