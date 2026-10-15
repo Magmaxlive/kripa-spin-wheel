@@ -33,7 +33,7 @@ function CTASection() {
         </p>
 
         <Link
-          href="/register"
+          href="/spin"
           className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-accent text-primary font-semibold uppercase tracking-wide text-sm hover:bg-white transition-colors shadow-[0_12px_30px_rgba(213,173,103,0.35)] focus:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
         >
           Spin now
