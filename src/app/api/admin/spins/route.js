@@ -131,7 +131,7 @@ export async function GET(request){
     const summary = {
         totalSpins : allSpins.length,
         giftsWon,
-        uniquePartcipants:uniquePartcipants.size,
+        uniqueParticipants:uniquePartcipants.size,
         noPrize : allSpins.length - giftsWon
     }
 

@@ -160,6 +160,7 @@ const [allSpins, setAllSpins] = useState([])
 const [giftOptions, setGiftOptions] = useState([])
 const [loading, setLoading] = useState(true)
 const [error, setError] = useState('')
+const [refresh,setRefresh] = useState(0)
 
 const [summary, setSummary] = useState({
     totalSpins: 0,
@@ -253,6 +254,7 @@ useEffect(() => {
                 noPrize: result.summary?.noPrize ?? 0,
                 uniqueParticipants: result.summary?.uniqueParticipants ?? 0,
             })
+            console.log('API unique participants:', result.summary?.uniqueParticipants)
             setPagination(result.pagination)
         } catch (err) {
             if (err.name === 'AbortError') return
@@ -270,7 +272,7 @@ useEffect(() => {
     fetchSpinResults()
 
     return () => controller.abort()
-}, [search, outcome, giftId, dateRange, page, pageSize])
+}, [search, outcome, giftId, dateRange, page, pageSize,refresh])
 
 
 
@@ -318,8 +320,7 @@ useEffect(() => {
     }
 
     const handleRefresh = () => {
-        // TODO (API): refetch from the server. For mock data we simulate a
-        // brief loading state so the UI behaves consistently.
+        setRefresh((v)=>v+1)
         setLoading(true)
         setTimeout(() => setLoading(false), 300)
     }

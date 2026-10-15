@@ -70,7 +70,7 @@ export async function GET(request){
 
     const {data,error,count} = await query
     .order('created_at',{ascending:false})
-    .range(from,to)
+    
 
     if (error){
         console.error('Participants fetch error :',error);
@@ -115,14 +115,22 @@ export async function GET(request){
         );
     }
 
+    const total = participants.length;
+    const totalPages = Math.ceil(total / pageSize);
+
+    const paginatedParticipants = participants.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+    );
+
 
     return NextResponse.json(
-        {participants: participants ?? [],
+        {participants: paginatedParticipants ?? [],
             pagination:{
-                total: count ?? 0,
+                total,
                 page,
                 pageSize,
-                totalPages: Math.ceil((count ?? 0) / pageSize)
+                totalPages
             },
         });
 
