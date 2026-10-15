@@ -1,8 +1,16 @@
+'use client'
 import React from 'react'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import Button from './Button'
 
 function Header() {
+  const pathname = usePathname()
+
+  if (pathname?.startsWith('/admin')) {
+    return null
+  }
+
   return (
     <div className='py-1 px-8 bg-white'>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
