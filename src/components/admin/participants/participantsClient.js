@@ -100,34 +100,39 @@ export async function getParticipant(id) {
     return data?.participant ?? null
 }
 
-export async function exportParticipants({search = '',status='all'}) {
+export async function exportParticipants({ search = '', status = 'all' } = {}) {
     const pageSize = 50;
     let page = 1;
-    let allParticipants = []
+    let allParticipants = [];
     let total = 0;
 
-    do{
+    do {
         const params = new URLSearchParams({
-            search,
-            status,
             page: String(page),
-            pageSize : String(pageSize)
+            pageSize: String(pageSize),
         });
+        if (search) params.set('search', search);
+        if (status && status !== 'all') params.set('status', status);
 
-        const response = await fetch(`${API_URL}?${params.toString()}`);
+        const response = await fetch(`${API_URL}?${params.toString()}`, {
+            method: 'GET',
+            cache: 'no-store',
+        });
 
         const data = await handleResponse(response);
 
-        const participants = data.participants ?? [];
+        const participants = Array.isArray(data?.participants)
+            ? data.participants
+            : [];
 
         allParticipants = allParticipants.concat(participants);
-        total = data.total ?? 0;
-        page+=1
-        
-    } while(allParticipants.length<total);
+        total = Number(data?.pagination?.total) || 0;
 
-    return allParticipants
+        if (participants.length === 0) break;
+        page += 1;
+    } while (allParticipants.length < total);
 
+    return allParticipants;
 }
 
 export async function getParticipantStats() {

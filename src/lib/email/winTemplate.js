@@ -72,7 +72,7 @@ function renderWinEmail({ name, giftName, logoUrl }) {
                                         <p style="margin:0 0 10px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#6b6b6b; font-weight:600;">
                                             Your prize
                                         </p>
-                                        <p style="margin:0; font-size:24px; line-height:1.3; font-weight:700; color:#004539;">
+                                        <p style="margin:0; font-size:24px; text-transform: capitalize; line-height:1.3; font-weight:700; color:#004539;">
                                             ${safeGift}
                                         </p>
                                     </td>

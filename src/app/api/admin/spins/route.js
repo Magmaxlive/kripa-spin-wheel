@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import { supabaseServer } from "@/lib/supabase/server";
+import { dateRangeToUtcBounds } from "@/lib/time/nz";
 
 export async function GET(request){
     try {
@@ -49,6 +50,13 @@ export async function GET(request){
             {status:400}
         );
     }
+
+    // Compute Pacific/Auckland date bounds once per request. The result
+    // is a pair of UTC Date instants bracketing the active NZ calendar
+    // range (start inclusive, end exclusive). Null for "all".
+    const bounds = dateRange === 'all'
+        ? null
+        : dateRangeToUtcBounds(dateRange);
 
 
     // spin records
@@ -157,28 +165,18 @@ export async function GET(request){
         let matchesDate = true;
 
         if (dateRange !== "all") {
-            const now = new Date();
-            const start = new Date(now);
-            start.setHours(0, 0, 0, 0);
-
-            if (dateRange === "last_7") {
-                start.setDate(start.getDate() - 6);
-            } else if (dateRange === "last_30") {
-                start.setDate(start.getDate() - 29);
-            }
-
             const spinDate = new Date(spin.created_at);
             matchesDate =
                 !Number.isNaN(spinDate.getTime()) &&
-                spinDate >= start &&
-                spinDate <= now;
+                spinDate >= bounds.start &&
+                spinDate < bounds.end;
         }
 
         return (
             matchesDate && matchesGift && matchesOutcome && matchesSearch
         )
 
-        
+
      });
 
      const total = filteredSpins.length;

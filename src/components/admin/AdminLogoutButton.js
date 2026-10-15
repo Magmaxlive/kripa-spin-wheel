@@ -26,7 +26,7 @@ function AdminLogoutButton() {
             type="button"
             onClick={handleLogout}
             disabled={signingOut}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center cursor-pointer justify-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
             <LogOut className="h-4 w-4" />
             {signingOut ? 'Signing out...' : 'Sign out'}

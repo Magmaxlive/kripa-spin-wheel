@@ -191,7 +191,6 @@ const [exporting, setExporting] = useState(false)
 
 const debounceTimerRef = useRef(null)
 
-const filteredSpins = allSpins
 const pagedSpins = allSpins
 
 const total = pagination.total
@@ -254,7 +253,6 @@ useEffect(() => {
                 noPrize: result.summary?.noPrize ?? 0,
                 uniqueParticipants: result.summary?.uniqueParticipants ?? 0,
             })
-            console.log('API unique participants:', result.summary?.uniqueParticipants)
             setPagination(result.pagination)
         } catch (err) {
             if (err.name === 'AbortError') return
@@ -339,9 +337,37 @@ useEffect(() => {
         if (exporting) return
         setExporting(true)
         try {
-            // TODO (API): replace with a server-side export call that
-            // respects the active search and filters.
-            const allMatching = filteredSpins
+            const exportPageSize = 50
+            let exportPage = 1
+            let allMatching = []
+            let totalMatching = 0
+
+            do {
+                const params = new URLSearchParams({
+                    search,
+                    outcome,
+                    giftId,
+                    dateRange,
+                    page: String(exportPage),
+                    pageSize: String(exportPageSize),
+                })
+
+                const response = await fetch(
+                    `/api/admin/spins?${params.toString()}`,
+                    { cache: 'no-store' }
+                )
+                const result = await response.json().catch(() => ({}))
+                if (!response.ok) {
+                    throw new Error(result.error || 'Unable to export spin results.')
+                }
+
+                const batch = Array.isArray(result.spins) ? result.spins : []
+                allMatching = allMatching.concat(batch)
+                totalMatching = Number(result.pagination?.total) || 0
+
+                if (batch.length === 0) break
+                exportPage += 1
+            } while (allMatching.length < totalMatching)
 
             if (allMatching.length === 0) {
                 toast.info('No spin results to export for the current filters.')

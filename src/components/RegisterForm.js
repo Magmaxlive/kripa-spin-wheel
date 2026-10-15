@@ -84,21 +84,14 @@ function RegisterForm() {
 
         const text = await response.text();
 
-        console.log("API status:", response.status);
-        console.log("API response:", text);
-
         const data = text ? JSON.parse(text) : {};
 
         if (!response.ok) {
-            console.error("Registration failed:", text);
-            alert(data.error || 'registration failed')
+            alert(data.error || 'Registration failed')
             return;
         }
 
-        
         form.reset();
-
-        console.log("Registration successful:", data);
 
         window.history.replaceState(null, "", "/spin");
         window.location.reload();

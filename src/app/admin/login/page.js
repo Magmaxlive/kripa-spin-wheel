@@ -1,14 +1,16 @@
 import AdminLoginForm from '@/components/AdminLoginForm'
 import SectionHeading from '@/components/SectionHeading'
-import { createAuthServerClient } from '@/lib/supabase/auth-server'
+import { requireAdmin } from '@/lib/supabase/require-admin'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
 async function AdminLoginPage() {
-  const supabase = await createAuthServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Only redirect to the dashboard when the current session belongs to a
+  // real admin — otherwise the protected layout would bounce them back
+  // here and create a redirect loop.
+  const auth = await requireAdmin()
 
-  if (user) {
+  if (auth.ok) {
     redirect('/admin')
   }
 
