@@ -46,7 +46,7 @@ function SpinnerSection() {
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 pt-2">
               <Link
-                href="/spin"
+                href="/register"
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-accent text-primary font-semibold uppercase tracking-wide text-sm hover:bg-white transition-colors shadow-[0_12px_30px_rgba(213,173,103,0.35)] focus:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
               >
                 Register &amp; Spin
