@@ -17,7 +17,9 @@ function Header() {
             <div className="relative w-22 aspect-square shrink-0">
                 <Image src='/images/kripalogo.svg' alt='kripa logo' fill className='object-contain'/>
             </div>
-            <Button/>
+            <a href='https://kripa.co.nz/' target='_blank'  smooth={true} className='py-2 hover:bg-accent hover:text-primary h-fit rounded-full cursor-pointer capitalize font-semibold text-base text-white px-4 bg-primary'>
+                    Contact
+            </a>
         </div>
     </div>
   )
