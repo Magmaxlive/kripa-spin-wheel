@@ -99,30 +99,30 @@ export async function POST() {
             console.error("Participant email lookup failed:", emailLookupError);
         }
 
-        if (participantDetails?.email) {
-            try {
-                const { subject, html, text } = renderWinEmail({
-                    name: participantDetails.name,
-                    giftName,
-                    logoUrl:
-                        "https://s3.ap-south-1.amazonaws.com/kripa.co.nz/media/logos/kripalogo.svg",
-                });
+        // if (participantDetails?.email) {
+        //     try {
+        //         const { subject, html, text } = renderWinEmail({
+        //             name: participantDetails.name,
+        //             giftName,
+        //             logoUrl:
+        //                 "https://s3.ap-south-1.amazonaws.com/kripa.co.nz/media/logos/kripalogo.svg",
+        //         });
 
-                const { error: sendError } = await resend.emails.send({
-                    from: process.env.EMAIL_FROM,
-                    to: participantDetails.email,
-                    subject,
-                    html,
-                    text,
-                });
+        //         const { error: sendError } = await resend.emails.send({
+        //             from: process.env.EMAIL_FROM,
+        //             to: participantDetails.email,
+        //             subject,
+        //             html,
+        //             text,
+        //         });
 
-                if (sendError) {
-                    console.error("Spin result email failed:", sendError);
-                }
-            } catch (emailError) {
-                console.error("Spin result email error:", emailError);
-            }
-        }
+        //         if (sendError) {
+        //             console.error("Spin result email failed:", sendError);
+        //         }
+        //     } catch (emailError) {
+        //         console.error("Spin result email error:", emailError);
+        //     }
+        // }
 
         return NextResponse.json(data);
     } catch (error) {
