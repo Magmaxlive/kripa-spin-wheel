@@ -22,8 +22,7 @@ export async function GET(request){
         const page = Number(searchParams.get('page') ?? 1);
         const pageSize = Number(searchParams.get('pageSize') ?? 10);
 
-        const from = (page - 1) * pageSize;
-        const to   = from + pageSize - 1;
+        
 
 
         if (!Number.isInteger(page) || page < 1) {
@@ -53,6 +52,9 @@ export async function GET(request){
             {status:400}
         );
     }
+
+    const from = (page - 1) * pageSize;
+    const to   = from + pageSize - 1;
 
     
     const bounds = dateRange === 'all'
@@ -157,7 +159,7 @@ export async function GET(request){
             summary,
             giftOptions,
             pagination: {
-                total:count,
+                total:count ?? 0,
                 page,
                 pageSize,
                 totalPages

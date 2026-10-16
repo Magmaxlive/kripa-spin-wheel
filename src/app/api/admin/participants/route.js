@@ -14,10 +14,12 @@ export async function GET(request){
     }
 
     const {searchParams} = new URL(request.url);
-    const search = searchParams.get('search')?.trim()?? '';
+    const search = searchParams.get('search')?.trim() ?? '';
     const spinStatus = searchParams.get('status') ?? 'all';
     const page = Number(searchParams.get('page')?? 1);
     const pageSize = Number(searchParams.get('pageSize') ?? 10);
+
+    
 
 
     // validate filters
@@ -43,91 +45,56 @@ export async function GET(request){
         );
     }
 
-    // fetch participants and their spin records
+    const from = ( page -1 ) * pageSize;
+    const to = from + pageSize - 1;
+
+    // fetch participants 
 
     let query = supabaseServer
-    .from('participants')
+    .from('participants_with_spin_status')
     .select(
-        'id,name,phone,email,created_at',
+        'id,name,phone,email,created_at,has_spun',
         {count:'exact'}
-    );
+    ).order('created_at',{ascending:false})
 
     // search name,phone,email
 
     if(search){
         const safeSearch = search.replace(/[,%()]/g, "");
         if(safeSearch){
+            const pattern = `%${safeSearch}%`
             query = query.or(
-                `name.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`
+                `name.ilike.${pattern},phone.ilike.${pattern},email.ilike.${pattern}`
             );
         }
     }
 
     
 
-    const from = ( page -1 ) * pageSize;
-    const to = from + pageSize - 1;
 
-    const {data,error,count} = await query
-    .order('created_at',{ascending:false})
-    
 
-    if (error){
-        console.error('Participants fetch error :',error);
-        return NextResponse.json(
-            {error : 'Unable to load participants. Please try again.'},
-            {status:500}
-        );
-    }
+    // apply spin status filter using the related spins records
 
-    const {data:spins,error:spinsError} = await supabaseServer
-    .from('spins')
-    .select('participant_id');
+    if (spinStatus === 'spun') query = query.eq('has_spun',true)
+    if (spinStatus === 'not_spun') query = query.eq('has_spun',false)
 
-    if (spinsError){
-        console.error('Participant spins fetch error :',spinsError);
+    const {data:participantData,error:participantError,count} = await query.range(from,to)
+
+    if (participantError){
+        console.error('Participant fetch error :',participantError)
 
         return NextResponse.json(
-            {error:'Unable to load participant spin status.'},
-            {status:500}
-        )
-    }
-
-    const spunIds = new Set(
-        (spins ?? []).map((spin)=> spin.participant_id)
-    )
-
-        let participants = (data ?? []).map((participant) => ({
-        ...participant,
-        has_spun: spunIds.has(participant.id),
-    }));
-
-
-    // apply sin status filter using the related spins records
-
-    if (spinStatus === 'spun'){
-        participants = participants.filter(
-            (participant) => participant.has_spun
-        );
-    } else if (spinStatus === 'not_spun'){
-        participants = participants.filter(
-            (participant) => !participant.has_spun
+            { error: 'Unable to load participants. Please try again.' },
+            { status: 500 }
         );
     }
 
-    const total = participants.length;
-    const totalPages = Math.ceil(total / pageSize);
-
-    const paginatedParticipants = participants.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-    );
-
+    const totalPages = Math.max(1, Math.ceil((count ?? 0) / pageSize));
 
     return NextResponse.json(
-        {participants: paginatedParticipants ?? [],
+        {participants: participantData ?? [],
             pagination:{
-                total,
+                total: count ?? 0,
                 page,
                 pageSize,
                 totalPages
