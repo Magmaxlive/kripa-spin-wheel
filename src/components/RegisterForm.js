@@ -169,7 +169,7 @@ function RegisterForm() {
                         
                     />  
 
-                            <label htmlFor="terms" className='text-semibold capitalize'>I agree to the Terms & Conditions</label>
+                            <label htmlFor="terms" className='text-semibold text-[10px] leading-snug'>I agree to Kripa Financial Solutions contacting me by phone, email, or SMS regarding this promotion and future updates, offers, events, and financial education content. I understand my details will be handled in accordance with applicable privacy requirements and that I may unsubscribe at any time.</label>
 
                         </div>
                     

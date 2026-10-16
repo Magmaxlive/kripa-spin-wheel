@@ -366,7 +366,7 @@ function SpinPage() {
                   </p>
                 )}
                 <p className="mt-3 text-xs text-primary/60">
-                  A confirmation email is on its way.
+                  Thank you for your participation
                 </p>
               </>
             ) : (
