@@ -146,13 +146,22 @@ export async function DELETE(request,{params}){
         .delete()
         .eq('id',id)
 
-        if (deletError){
-            console.error('Delete gift error:',deletError)
+        if (deletError) {
+            console.error('Delete gift error:', deletError);
+
+            if (deletError.code === '23503') {
+                return NextResponse.json(
+                    { error: 'Cannot delete this gift because it is referenced by existing spin records.' },
+                    { status: 409 }
+                );
+            }
+
             return NextResponse.json(
-                {error:'Unable to delete gift'},
-                {status:500}
-            )
+                { error: 'Unable to delete gift' },
+                { status: 500 }
+            );
         }
+
 
         return NextResponse.json({
             success:true,

@@ -19,7 +19,7 @@ export async function GET() {
         .order('created_at',{ascending:false});
 
         if(error){
-            console.error('fetch gifts error :',gifts)
+            console.error('fetch gifts error :',error)
 
             return NextResponse.json(
                 {error:'unable to fetch gifts'},
@@ -32,7 +32,7 @@ export async function GET() {
         console.error('Admin gifts API error:',error)
 
         return NextResponse.json(
-            {error:'Internal server error,'},
+            {error:'Internal server error'},
             {status:500}
         )
     }
