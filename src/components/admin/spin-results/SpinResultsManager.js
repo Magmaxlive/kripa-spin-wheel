@@ -92,67 +92,6 @@ function downloadCsv(content, filename) {
     URL.revokeObjectURL(url)
 }
 
-function startOfToday() {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    return d
-}
-
-function dateRangeStart(range) {
-    const start = startOfToday()
-    if (range === 'today') return start
-    if (range === 'last_7') {
-        start.setDate(start.getDate() - 6)
-        return start
-    }
-    if (range === 'last_30') {
-        start.setDate(start.getDate() - 29)
-        return start
-    }
-    return null
-}
-
-function matchesSearch(spin, search) {
-    if (!search) return true
-    const needle = search.toLowerCase()
-    return (
-        (spin.participant_name ?? '').toLowerCase().includes(needle) ||
-        (spin.phone ?? '').toLowerCase().includes(needle) ||
-        (spin.email ?? '').toLowerCase().includes(needle)
-    )
-}
-
-function matchesOutcome(spin, outcome) {
-    if (outcome === 'all') return true
-    const hasGift = Boolean(spin.gift_id)
-    if (outcome === 'gift') return hasGift
-    if (outcome === 'no_prize') return !hasGift
-    return true
-}
-
-function matchesGift(spin, giftId) {
-    if (giftId === 'all') return true
-    return spin.gift_id === giftId
-}
-
-function matchesDate(spin, range) {
-    if (range === 'all') return true
-    const start = dateRangeStart(range)
-    if (!start) return true
-    const created = spin.created_at ? new Date(spin.created_at) : null
-    if (!created || Number.isNaN(created.getTime())) return false
-    return created >= start
-}
-
-function filterSpins(spins, { search, outcome, giftId, dateRange }) {
-    return spins.filter(
-        (spin) =>
-            matchesSearch(spin, search) &&
-            matchesOutcome(spin, outcome) &&
-            matchesGift(spin, giftId) &&
-            matchesDate(spin, dateRange)
-    )
-}
 
 function SpinResultsManager() {
 

@@ -22,6 +22,9 @@ export async function GET(request){
         const page = Number(searchParams.get('page') ?? 1);
         const pageSize = Number(searchParams.get('pageSize') ?? 10);
 
+        const from = (page - 1) * pageSize;
+        const to   = from + pageSize - 1;
+
 
         if (!Number.isInteger(page) || page < 1) {
             return NextResponse.json(
@@ -51,139 +54,98 @@ export async function GET(request){
         );
     }
 
-    // Compute Pacific/Auckland date bounds once per request. The result
-    // is a pair of UTC Date instants bracketing the active NZ calendar
-    // range (start inclusive, end exclusive). Null for "all".
+    
     const bounds = dateRange === 'all'
         ? null
         : dateRangeToUtcBounds(dateRange);
 
+    
+    let query = supabaseServer
+    .from('spins')
+    .select(
+        `id,participant_id,gift_id,created_at,
+        participants!inner(name,email,phone),
+        gifts(name)`,
+        {count:'exact'}
+    ).order('created_at',{ascending:false})
 
-    // spin records
-    const {data:spinRecords,error:spinError} = await supabaseServer
-        .from('spins')
-        .select('id,participant_id,gift_id,created_at')
-        .order('created_at',{ascending:false})
+    // outcome
+    if (outcome === 'gift') query = query.not('gift_id','is',null);
+    if (outcome === 'no_prize') query = query.is('gift_id',null);
 
-    if(spinError){
-        console.error("Spin results fetch error :",spinError);
+    // date range 
+    if (bounds){
+        query = query
+        .gte('created_at',bounds.start.toISOString())
+        .lt('created_at',bounds.end.toISOString())
+    }
+
+    // gift filter
+    if (giftId !== 'all') query = query.eq('gift_id', giftId);
+
+
+    // search
+    if (search){
+        const pattern = `%${search}%`;
+        query = query.or(
+            `name.ilike.${pattern},phone.ilike.${pattern},email.ilike.${pattern}`,
+            {foreignTable:'participants'}
+        )
+    }
+
+    
+
+    // spins,summary and gifts fetching
+        const [{data:spinRecords,error:SpinsError,count},
+            {data:summaryRow,error:summaryError},
+            {data:giftRecords,error:giftsError}
+        ] = await Promise.all([
+            query.range(from,to),
+            supabaseServer.rpc('admin_spin_summary').single(),
+            supabaseServer.from('gifts').select('id,name')
+        ])
+
+        if (SpinsError || summaryError){
+            console.error('Spin result fetch error :',SpinsError,summaryError)
+
+            return NextResponse.json(
+                { error: 'Unable to load spin results' },
+                { status: 500 }
+            )
+        }
+
+        if (giftsError){
+        console.error('Spin results lookup error :',giftsError);
 
         return NextResponse.json(
-            {error:'Unable to load spin results'},
+            {error:'Unable to load gift details'},
             {status:500}
         )
     }
 
-    // participant and gift information
-
-    const [
-        {data:participantRecords,error:participantsError},
-        {data:giftRecords,error:giftsError},
-    ] = await Promise.all([
-        supabaseServer
-        .from('participants')
-        .select('id,name,phone,email'),
-
-        supabaseServer
-        .from('gifts')
-        .select('id,name')
-    ]);
-
-    if (participantsError || giftsError){
-        console.error('Spin results lookup error :',participantsError,giftsError);
-
-        return NextResponse.json(
-            {error:'Unable to load participant or gift details'},
-            {status:500}
-        )
+    // summary card use all spin records,
+    const summary = {
+        totalSpins : summaryRow.total_spins,
+        giftsWon : summaryRow.gifts_won,
+        uniqueParticipants:summaryRow.unique_participants,
+        noPrize : summaryRow.no_prize
     }
+       
+        const totalPages = Math.max(1, Math.ceil((count ?? 0) / pageSize));
 
-    const partcipantsMap = new Map(
-        (participantRecords ?? []).map((participant)=>[
-            participant.id,
-            participant,
-        ])
-    )
-
-     const giftsMap = new Map(
-        (giftRecords ?? []).map((gift)=>[
-            gift.id,
-            gift,
-        ])
-    )
-
-    const allSpins = (spinRecords ?? []).map((spin)=>{
-        const participant = partcipantsMap.get(spin.participant_id);
-        const gift = spin.gift_id ? giftsMap.get(spin.gift_id) : null;
-
+        const spins = (spinRecords ?? []).map((spin)=>{
+        
         return {
             id: spin.id,
             participant_id: spin.participant_id,
-            participant_name: participant?.name ?? "Unknown participant",
-            phone: participant?.phone ?? "",
-            email: participant?.email ?? "",
+            participant_name: spin.participants?.name ?? "Unknown participant",
+            phone: spin.participants?.phone ?? "",
+            email: spin.participants?.email ?? "",
             gift_id: spin.gift_id,
-            gift_name: gift?.name ?? null,
+            gift_name: spin.gifts?.name ?? null,
             created_at: spin.created_at,
         };
     });
-
-    // summary card use all spin records,
-
-    const uniquePartcipants = new Set(
-        allSpins.map((spin)=> spin.participant_id).filter(Boolean)
-    )
-
-    const giftsWon = allSpins.filter((spin)=>spin.gift_id).length;
-
-    const summary = {
-        totalSpins : allSpins.length,
-        giftsWon,
-        uniqueParticipants:uniquePartcipants.size,
-        noPrize : allSpins.length - giftsWon
-    }
-
-    // apply search,outcome,gift and date filter
-
-    let filteredSpins = allSpins.filter((spin)=>{
-        const matchesSearch =
-        !search ||
-        spin.participant_name.toLowerCase().includes(search) ||
-        spin.phone.toLowerCase().includes(search)||
-        spin.email.toLowerCase().includes(search);
-
-        const hasGift = Boolean(spin.gift_id);
-
-        const matchesOutcome = 
-        outcome === 'all' ||
-        (outcome === 'gift' && hasGift) ||
-        (outcome === 'no_prize' && !hasGift)
-
-        const matchesGift =
-            giftId === 'all' || spin.gift_id === giftId;
-
-        let matchesDate = true;
-
-        if (dateRange !== "all") {
-            const spinDate = new Date(spin.created_at);
-            matchesDate =
-                !Number.isNaN(spinDate.getTime()) &&
-                spinDate >= bounds.start &&
-                spinDate < bounds.end;
-        }
-
-        return (
-            matchesDate && matchesGift && matchesOutcome && matchesSearch
-        )
-
-
-     });
-
-     const total = filteredSpins.length;
-        const totalPages = Math.ceil(total / pageSize);
-        const from = (page - 1) * pageSize;
-
-        filteredSpins = filteredSpins.slice(from, from + pageSize);
 
         const giftOptions = (giftRecords ?? []).map((gift) => ({
             id: gift.id,
@@ -191,14 +153,14 @@ export async function GET(request){
         }));
 
         return NextResponse.json({
-            spins: filteredSpins,
+            spins: spins,
             summary,
             giftOptions,
             pagination: {
-                total,
+                total:count,
                 page,
                 pageSize,
-                totalPages,
+                totalPages
             },
         });
 
